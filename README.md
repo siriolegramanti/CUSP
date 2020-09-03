@@ -1,0 +1,2 @@
+# CUSP
+Cumulative Shrinkage Process
