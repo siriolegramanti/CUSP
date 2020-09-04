@@ -1,4 +1,4 @@
-# CUSP
+# CUSP: Cumulative Shrinkage Process
 
 This repository is associated with the article **Bayesian cumulative shrinkage for infinite factorizations** ([Biometrika, 107(3), 745-752](https://academic.oup.com/biomet/advance-article-abstract/doi/10.1093/biomet/asaa008/5847840); also on [arXiv](http://arxiv.org/abs/1902.04349)) and provides detailed materials and codes for posterior inference under the *Cumulative Shrinkage Process (CUSP)* proposed in the article.
 
