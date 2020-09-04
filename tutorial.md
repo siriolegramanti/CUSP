@@ -66,15 +66,19 @@ Finally we compute:
 * a scalar MSE, obtained by averaging over the upper-diagonal elements (diagonal included) of the MSE matrix:
 ``` r
 mean(MSE[upper.tri(MSE,diag=TRUE)])
+[1] 0.008704476
 ``` 
 * the expected number of active factors:
 ``` r
 mean(gibbs$Hstar[thinning])
+[1] 2.688
 ``` 
 
 * the runtime:
 ``` r
 gibbs$runtime[1]
+user.self 
+  338.946 
 ``` 
 
 Please refer to Section 5 of the article "Bayesian cumulative shrinkage for infinite factorizations" ([Biometrika, 107(3), 745-752](https://academic.oup.com/biomet/advance-article-abstract/doi/10.1093/biomet/asaa008/5847840); also on [arXiv](http://arxiv.org/abs/1902.04349)) for detailed comments on these results in comparison to the performance of the *multiplicative gamma process* proposed in 
