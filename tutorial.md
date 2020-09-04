@@ -71,7 +71,7 @@ mean(MSE[upper.tri(MSE,diag=TRUE)])
 * the expected number of active factors:
 ``` r
 mean(gibbs$Hstar[thinning])
-[1] 2.688
+[1] 2.842
 ``` 
 
 * the runtime:
