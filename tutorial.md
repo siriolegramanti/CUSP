@@ -19,45 +19,51 @@ As suggested in the [`R` documentation of the `bfi` dataset](https://www.rdocume
 Then, recalling common implementations of factor models, we center the 25 items and compute the data correlation matrix S.
 ``` r
 library(psych)
+
 data(bfi)
-bfi<-na.omit(bfi)
-bfi<-bfi[which(bfi$age>50),1:25]
-bfi[,1]<- -bfi[,1]
-bfi[,9]<- -bfi[,9]
-bfi[,10]<- -bfi[,10]
-bfi[,11]<- -bfi[,11]
-bfi[,12]<- -bfi[,12]
-bfi[,22]<- -bfi[,22]
-bfi[,25]<- -bfi[,25]
+bfi <- na.omit(bfi)
+bfi <- bfi[which(bfi$age>50),1:25]
+bfi[,1] <- -bfi[,1]
+bfi[,9] <- -bfi[,9]
+bfi[,10] <- -bfi[,10]
+bfi[,11] <- -bfi[,11]
+bfi[,12] <- -bfi[,12]
+bfi[,22] <- -bfi[,22]
+bfi[,25] <- -bfi[,25]
+
 for (j in 1:25){
-  bfi[,j]<-(bfi[,j]-mean(bfi[,j]))
+  bfi[,j] <- (bfi[,j]-mean(bfi[,j]))
 }
-y<-as.matrix(bfi)
-S<-cor(y)
+
+y <- as.matrix(bfi)
+S <- cor(y)
 ``` 
 
 ## Posterior computation and post-processing
 Posterior computation is carried out through the function `cusp_factor_adapt()` from [`cusp.R`](https://github.com/siriolegramanti/CUSP/blob/master/cusp.R), with parameters set as reported in the article.
 ``` r
-gibbs<-cusp_factor_adapt(y,my_seed=6784,N_sampl=15000,
+gibbs <- cusp_factor_adapt(y,my_seed=6784,N_sampl=15000,
                   alpha=5,a_sig=1,b_sig=0.3,a_theta=2,b_theta=2,theta_inf=0.05,
                   start_adapt=500,Hmax=dim(y)[2]+1,alpha0=-1,alpha1=-5*10^(-4))
 ```
 
 Post-processing starts by removing the first 5000 burn-in samples and  thinning every five. Then the posterior for the covariance matrix <img src="https://render.githubusercontent.com/render/math?math=\Omega"> is derived from those of the loadings matrix <img src="https://render.githubusercontent.com/render/math?math=\Lambda"> and of the noise covariance matrix <img src="https://render.githubusercontent.com/render/math?math=\Sigma"> through the well-known decomposition <img src="https://render.githubusercontent.com/render/math?math=\Omega = \Lambda \Lambda^T %2B \Sigma"> and, by averaging over posterior samples, we compute the Mean Square Error matrix between the data correlation matrix S and the posterior over S derived from that on <img src="https://render.githubusercontent.com/render/math?math=\Omega">.
 ``` r
-burn_in=5000
-thin=5
+burn_in = 5000
+thin = 5
 thinning <- seq(burn_in+1,gibbs$N_sampl,by=thin)
 p <- dim(gibbs$y)[2]
+
 Omega_post <- array(NA,c(p,p,length(thinning)))
 SE <- array(dim=dim(Omega_post))
+
 for (i in 1:length(thinning)){
-  Omega_post[,,i]<-gibbs$Lambda_post[[thinning[i]]]%*%t(gibbs$Lambda_post[[thinning[i]]])+
+  Omega_post[,,i] <- gibbs$Lambda_post[[thinning[i]]]%*%t(gibbs$Lambda_post[[thinning[i]]])+
     diag(1/gibbs$inv_sigma_sq_post[,thinning[i]])
-  S_post<-diag(1/sqrt(diag(Omega_post[,,i])))%*%Omega_post[,,i]%*%diag(1/sqrt(diag(Omega_post[,,i])))
+  S_post <- diag(1/sqrt(diag(Omega_post[,,i])))%*%Omega_post[,,i]%*%diag(1/sqrt(diag(Omega_post[,,i])))
   SE[,,i] <- (S_post-S)^2
 }
+
 MSE <- apply(SE,c(1,2),mean)
 ``` 
 
